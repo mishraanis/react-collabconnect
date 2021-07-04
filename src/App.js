@@ -19,6 +19,7 @@ const Ask = lazy(()=> import("./Components/Ask/Ask"))
 const AuthenticatedHome = lazy(() => import("./Components/AuthenticatedHome"))
 const Connect = lazy(() => import('./Components/Connect/Connect'))
 const Profile = lazy(() => import("./Components/Profile/Profile"))
+const Project = lazy(() => import("./Components/project/project"))
 const ConnectionRequest = lazy(() => import("./Components/ConnectionRequest/ConnectionRequest"))
 const ConnectionHistory = lazy(() => import("./Components/ConnectionHistory"))
 const Rickroll = lazy(() => import("./Components/Rickroll"))
@@ -133,6 +134,13 @@ class App extends React.Component {
 
                                 <Route
                                     exact
+                                    path="/project"
+                                >
+                                    <Project />
+                                </Route>
+
+                                <Route
+                                    exact
                                     path="/about"
                                 >
                                     <AboutUs />
@@ -156,6 +164,12 @@ class App extends React.Component {
                                 >
                                     <ConnectionHistory />
                                 </Route>
+
+
+
+
+
+
 
                                 <Route
                                     exact

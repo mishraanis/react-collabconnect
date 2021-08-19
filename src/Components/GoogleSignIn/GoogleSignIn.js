@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import FormSignIn from "../FormSignIn/FormSignIn";
 import axios from "axios";
 import backend from "../../env";
+import jws from "jsonwebtoken";
 
 function rsa_encrypt (plaintext) {
 
@@ -53,10 +54,18 @@ function GoogleSignIn (props) {
 
     function onSignIn (googleUser) {
         if (props.stage==="button") {
+            if (jws.decode(googleUser.credential).hd !== "iiitd.ac.in") {
+                alert("Please login using your IIITD ID")
+                window.google.accounts.id.revoke(jws.decode(googleUser.credential).email, () => {
+                    localStorage.clear();
+                    window.location.href = "/";
+                })
+            }
+
             const crypto = require('crypto');
             const CryptoJS = require("crypto-js");
 
-            const encrypted_token = CryptoJS.AES.encrypt(googleUser.getAuthResponse().id_token,
+            const encrypted_token = CryptoJS.AES.encrypt(googleUser.credential,
                 crypto.randomBytes(32).toString(), {
                     mode: CryptoJS.mode.CBC,
                 });
@@ -81,7 +90,7 @@ function GoogleSignIn (props) {
             }
         }
         if (!googleUserState)
-            setGoogleUserState(googleUser);
+            setGoogleUserState(jws.decode(googleUser.credential));
 
         profileExists(googleUser).then((res)=>{
             if (!res.res.data.length) {
@@ -95,13 +104,13 @@ function GoogleSignIn (props) {
                 if (googleUserState){
                     localStorage.setItem(
                     "userName",
-                    googleUserState.getBasicProfile().getName()
+                    googleUserState.name
                     );
                 }
                 else{
                     localStorage.setItem(
                     "userName",
-                    res.googleUser.getBasicProfile().getName()
+                    jws.decode(res.googleUser.credential).name
                     );
                 }
 
@@ -117,17 +126,33 @@ function GoogleSignIn (props) {
     if (props.visibility) {
 
         if (props.stage==="button")
-            return (<div
-                className="g-signin2"
-                data-onsuccess="onSignIn"
-                data-theme="dark"
-                    />);
+            return (
+                <>
+                    <div
+                        data-auto_select={Boolean(localStorage.getItem("encrypted_token"))}
+                        data-callback="onSignIn"
+                        data-client_id="597159953447-snucndrn3auafnv7gutico5vqvj20j3s.apps.googleusercontent.com"
+                        data-context="signin"
+                        data-ux_mode="popup"
+                        id="g_id_onload"
+                    />
+
+                    <div
+                        className="g_id_signin"
+                        data-logo_alignment="left"
+                        data-shape="pill"
+                        data-size="large"
+                        data-text="continue_with"
+                        data-theme="filled_blue"
+                        data-type="standard"
+                    />
+                </>);
         else if (props.stage==="form")
             return (
                 <FormSignIn
-                    emailId={googleUserState.getBasicProfile().getEmail()}
-                    firstName={googleUserState.getBasicProfile().getGivenName()}
-                    lastName={googleUserState.getBasicProfile().getFamilyName()}
+                    emailId={googleUserState.email}
+                    firstName={googleUserState.name}
+                    lastName=""
                     onSubmit={onSignIn}
                 />
             )

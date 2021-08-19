@@ -48,7 +48,7 @@ class App extends React.Component {
                 if (error.response.status === 500)
                     alert("Unexpected error occurred. Please contact us if you see this message repeatedly.")
                 else if (error.response.status === 401)
-                    alert("Authentication error. Please try clicking/tapping on the CollabConnect logo to re-authenticate")
+                    alert("Authentication error. Please try clicking/tapping on the CollabAmigo logo to re-authenticate")
             }
             return Promise.reject(error);
           });
@@ -56,13 +56,12 @@ class App extends React.Component {
         this.state = {
             "signedIn": false,
         };
+    }
 
-        window.gapi.load(
-            "auth2",
-            () => {
-                window.gapi.auth2.init();
-            }
-        );
+    componentDidMount() {
+        if (location.host==="collabconnect.web.app" || location.host==="collabamigo.web.app")
+            location.host="collabamigo.com"
+
     }
 
     componentDidMount() {
